@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.main.merchandising.domain.Item;
 
-import reactor.core.publisher.Mono;
+import rx.Observable;
+import rx.Single;
 
 @RestController
 public class MerchandisingRest {
@@ -20,18 +21,23 @@ public class MerchandisingRest {
 	}
 	
 	@RequestMapping("/hello")
-	public Mono<String> hello(){
-		return Mono.just("hello merchandising service");
+	public Single<String> hello(){
+		return Single.just("hello merchandising service");
+	}
+	
+	@RequestMapping("/hello-list")
+	public Single<List<String>> helloList(){
+		return Observable.just("string 1", "string 2").toList().toSingle();
 	}
 	
 	@RequestMapping("/brand/{brand}")
-	public List<Item> findByBrand(@PathVariable String brand){
-		return this.merchandisingService.findByBrand(brand).collectList().block();
+	public Single<List<Item>> findByBrand(@PathVariable String brand){
+		return this.merchandisingService.findByBrand(brand).toList().toSingle();
 	}
 	
 	@RequestMapping("/id/{id}")
-	public Item findById(@PathVariable String id){
-		return this.merchandisingService.findOne(id).block();
+	public Single<Item> findById(@PathVariable String id){
+		return this.merchandisingService.findOne(id);
 	}
 		
 }

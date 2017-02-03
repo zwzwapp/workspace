@@ -1,12 +1,12 @@
 package com.main.merchandising;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.repository.reactive.RxJava1CrudRepository;
 
 import com.main.merchandising.domain.Price;
 
-import reactor.core.publisher.Flux;
+import rx.Single;
 
-public interface ReactivePriceRepository extends ReactiveCrudRepository<Price, String>{
+public interface ReactivePriceRepository extends RxJava1CrudRepository<Price, String>{
 
-	Flux<Price> findByItemId(String itemId);
+	Single<Price> findByItemId(String itemId);
 }

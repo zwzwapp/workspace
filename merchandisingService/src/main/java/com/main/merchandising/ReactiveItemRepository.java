@@ -1,14 +1,14 @@
 package com.main.merchandising;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.repository.reactive.RxJava1CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import com.main.merchandising.domain.Item;
 
-import reactor.core.publisher.Flux;
+import rx.Observable;
 
 @Repository
-public interface ReactiveItemRepository extends ReactiveCrudRepository<Item, String>{
+public interface ReactiveItemRepository extends RxJava1CrudRepository<Item, String>{
 
-	Flux<Item> findByBrand(String brand);
+	Observable<Item> findByBrand(String brand);
 }

@@ -1,43 +1,37 @@
 package com.main.merchandising;
 
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Service;
 
 import com.main.merchandising.domain.Item;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import rx.Observable;
+import rx.Single;
 
 public interface MerchandisingService {
 	
-	public Flux<Item> findByBrand(String brand);
+	public Observable<Item> findByBrand(String brand);
 	
-	public Mono<Item> findOne(String id);
+	public Single<Item> findOne(String id);
 
 }
 
 @Service
 class MerchandisingServiceImpl implements MerchandisingService{
 
-	private ReactiveMongoTemplate mongoTemplate;
 	private ReactiveItemRepository itemRepository;
 	
-	public MerchandisingServiceImpl(ReactiveMongoTemplate mongoTemplate,
-										ReactiveItemRepository itemRepository){
-		this.mongoTemplate = mongoTemplate;
+	public MerchandisingServiceImpl(ReactiveItemRepository itemRepository){
 		this.itemRepository = itemRepository;
 	}
 	
 	@Override
-	public Flux<Item> findByBrand(String brand) {		
-		return this.itemRepository.findByBrand(brand)
-							.log();
+	public Observable<Item> findByBrand(String brand) {				
+		return this.itemRepository.findByBrand(brand);							
 	}
 
 	@Override
-	public Mono<Item> findOne(String id) {		
-		return this.itemRepository.findOne(id)
-									.log();
+	public Single<Item> findOne(String id) {		
+		return this.itemRepository.findOne(id).toSingle();									
 	}
 	
 }

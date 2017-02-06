@@ -46,6 +46,12 @@ public class Price {
 	public void setSalePrice(double salePrice) {
 		this.salePrice = salePrice;
 	}
+
+	@Override
+	public String toString() {
+		return "Price [id=" + id + ", itemId=" + itemId + ", retailPrice=" + retailPrice + ", salePrice=" + salePrice
+				+ "]";
+	}
 	
 	
 }

@@ -1,25 +1,17 @@
 package com.main.merchandising.domain;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
-import org.springframework.data.mongodb.core.index.TextIndexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document(collection = "item")
-public class Item {
-
+public class Summary {
+	
 	private String id;
 	
-	@NotNull
-	@TextIndexed
 	private String title;
 	
-	@NotNull
-	@TextIndexed
 	private String brand;
-
-	public Item(){}
 	
+	private List<Price> prices;
+
 	public String getId() {
 		return id;
 	}
@@ -44,9 +36,12 @@ public class Item {
 		this.brand = brand;
 	}
 
-	@Override
-	public String toString() {
-		return "Item [id=" + id + ", title=" + title + ", brand=" + brand + "]";
+	public List<Price> getPrices() {
+		return prices;
 	}
-			
+
+	public void setPrices(List<Price> prices) {
+		this.prices = prices;
+	}
+		
 }

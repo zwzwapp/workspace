@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.main.gateway.domain.Comment;
 import com.main.gateway.domain.Product;
 
+import rx.Observable;
 import rx.Single;
 
 @RestController
@@ -51,7 +52,9 @@ public class GatewayRest {
 	@RequestMapping("/api/product/brand/{brand}")
 	public Single<List<Product>> findProductByBrand(@PathVariable String brand){
 		return this.merchandisingClient.findByBrand(brand)
-					.map(summary -> {
+					.toObservable()
+					.flatMap( s -> Observable.from(s))
+					.map(summary -> {						
 						Product product = new Product();
 						product.setId(summary.getId());
 						product.setTitle(summary.getTitle());

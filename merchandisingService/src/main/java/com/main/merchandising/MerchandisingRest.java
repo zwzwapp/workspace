@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.main.merchandising.domain.Summary;
 
+import rx.Single;
+
 @RestController
 public class MerchandisingRest {
 	private Logger logger = LoggerFactory.getLogger(MerchandisingRest.class);
@@ -27,17 +29,16 @@ public class MerchandisingRest {
 	}
 		
 	@GetMapping("/id/{id}")
-	public Summary findByItemId(@PathVariable String id){
+	public Single<Summary> findByItemId(@PathVariable String id){
 		return this.merchandisingService.findById(id)
-					.doOnSuccess(i -> logger.info("find by item id : "+ id))
-					.blockingGet();					
+					.doOnSuccess(i -> logger.info("find by item id : "+ id));									
 	}
 	
 	@GetMapping("/brand/{brand}")
-	public Iterable<Summary> findByBrand(@PathVariable String brand){
-		return this.merchandisingService.findByBrand(brand)		
-					.doOnComplete(() -> logger.info("find by brand : "+ brand))
-					.blockingIterable();
-										
+	public Single<List<Summary>> findByBrand(@PathVariable String brand){
+		return this.merchandisingService.findByBrand(brand)
+					.doOnCompleted(() -> logger.info("find by brand : "+ brand))
+					.toList()
+					.toSingle();										
 	}
 }

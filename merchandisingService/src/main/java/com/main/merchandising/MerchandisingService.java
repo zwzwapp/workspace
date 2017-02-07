@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 import com.main.merchandising.domain.Item;
 import com.main.merchandising.domain.Summary;
 
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import rx.Observable;
+import rx.Single;
+import rx.schedulers.Schedulers;
 
 public interface MerchandisingService {
 	
@@ -61,7 +61,7 @@ class MerchandisingServiceImpl implements MerchandisingService{
 				lookup("price", "_id", "itemId", "prices")
 				);
 		AggregationResults<Summary> result = this.mongoTemplate.aggregate(agg, Item.class, Summary.class);
-		return Observable.fromIterable(result.getMappedResults())		
+		return Observable.from(result.getMappedResults())		
 					.subscribeOn(Schedulers.newThread())
 					.doOnNext(i -> logger.info("summary : "+ i.toString()));
 	}

@@ -1,0 +1,13 @@
+server:
+  port: 8084
+  
+spring:
+  data:
+    mongodb:
+      uri: mongodb://192.168.99.100:27017
+      database: test
+      
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.99.100:8761/eureka       

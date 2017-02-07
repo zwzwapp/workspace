@@ -10,6 +10,8 @@ zuul:
   routes:
     merchandising:
       path: /product/**
-      serviceId: merchandising-service
-      
+      serviceId: merchandising-service      
+    comment:
+      path: /comment/**      
+      serviceId: comment-service
           

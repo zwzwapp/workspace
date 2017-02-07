@@ -40,7 +40,7 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-turbine')
 	compile('org.springframework.cloud:spring-cloud-starter-zuul')
 	
-	compile('io.reactivex.rxjava2:rxjava')
+	compile('io.reactivex.rxjava2:rxjava')	
 	
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

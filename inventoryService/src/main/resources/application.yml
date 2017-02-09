@@ -1,13 +1,22 @@
 server:
   port: 8085
   
+spring:
+  profiles:
+    active:
+    - dev
+      
 eureka:
   client:
     service-url:
       defaultZone: http://192.168.99.100:8761/eureka  
-      
-spring:
+
+---
+  
+spring:        
+  profiles: dev
+        
   data:
     mongodb:
       uri: mongodb://192.168.99.100:27017
-      database: test      
+      database: test    

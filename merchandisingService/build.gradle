@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.BUILD-SNAPSHOT'
+		springBootVersion = '1.5.2.BUILD-SNAPSHOT'
 	}
 	repositories {
 		mavenCentral()
@@ -39,7 +39,7 @@ dependencies {
 				
 	compile('org.springframework.data:spring-data-mongodb')
 	compile('io.reactivex.rxjava2:rxjava')
-				
+	
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

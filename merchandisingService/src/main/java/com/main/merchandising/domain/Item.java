@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Item {
 
 	private String id;
-	
+		
 	@NotNull
 	@TextIndexed
 	private String title;
@@ -18,6 +18,14 @@ public class Item {
 	@TextIndexed
 	private String brand;
 
+	@NotNull
+	@TextIndexed
+	private String category;
+	
+	private String description;
+	
+	private String tags;
+			
 	public Item(){}
 	
 	public String getId() {
@@ -44,9 +52,28 @@ public class Item {
 		this.brand = brand;
 	}
 
-	@Override
-	public String toString() {
-		return "Item [id=" + id + ", title=" + title + ", brand=" + brand + "]";
+	public String getCategory() {
+		return category;
 	}
-			
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getTags() {
+		return tags;
+	}
+
+	public void setTags(String tags) {
+		this.tags = tags;
+	}
+
 }

@@ -11,6 +11,8 @@ public class Summary {
 	private String brand;
 	
 	private List<Price> prices;
+	
+	private List<Variant> variants;
 
 	public String getId() {
 		return id;
@@ -42,6 +44,14 @@ public class Summary {
 
 	public void setPrices(List<Price> prices) {
 		this.prices = prices;
+	}
+
+	public List<Variant> getVariants() {
+		return variants;
+	}
+
+	public void setVariants(List<Variant> variants) {
+		this.variants = variants;
 	}
 		
 }

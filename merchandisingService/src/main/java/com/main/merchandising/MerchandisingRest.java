@@ -25,19 +25,20 @@ public class MerchandisingRest {
 	
 	@RequestMapping("/hello")
 	public String hello(){		
-		return "hello merchandising service";		
+		return this.merchandisingService.hello();		
 	}
 		
 	@GetMapping("/id/{id}")
 	public Single<Summary> findByItemId(@PathVariable String id){
-		return this.merchandisingService.findById(id)
-					.doOnSuccess(i -> logger.info("find by item id : "+ id));									
+		return this.merchandisingService.findById(id)					
+					.doOnSuccess(i -> logger.info("find by item id : "+ id));										
 	}
 	
 	@GetMapping("/brand/{brand}")
 	public Single<List<Summary>> findByBrand(@PathVariable String brand){
 		return this.merchandisingService.findByBrand(brand)
 					.doOnCompleted(() -> logger.info("find by brand : "+ brand))
+					.cache()
 					.toList()
 					.toSingle();										
 	}

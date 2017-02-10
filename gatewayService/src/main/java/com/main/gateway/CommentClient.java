@@ -16,4 +16,7 @@ public interface CommentClient {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/item-id/{itemId}")
 	public Single<List<Comment>> findByItemId(@PathVariable("itemId") String itemId);
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/rating/{itemId}")
+	public Single<Double> findRatingByItemId(@PathVariable("itemId") String itemId);
 }

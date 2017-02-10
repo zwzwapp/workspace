@@ -12,7 +12,7 @@ public class Product {
 	
 	private List<Comment> comments;
 			
-	private int rating;
+	private double rating;
 		
 	private List<Inventory> inventorys;
 
@@ -32,11 +32,11 @@ public class Product {
 		this.comments = comments;
 	}
 
-	public int getRating() {
+	public double getRating() {
 		return rating;
 	}
 
-	public void setRating(int rating) {
+	public void setRating(double rating) {
 		this.rating = rating;
 	}
 

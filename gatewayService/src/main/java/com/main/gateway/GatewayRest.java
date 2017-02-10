@@ -2,6 +2,8 @@ package com.main.gateway;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,10 +14,12 @@ import com.main.gateway.domain.Product;
 
 import rx.Observable;
 import rx.Single;
+import rx.schedulers.Schedulers;
 
 @RestController
 public class GatewayRest {
-
+	private Logger logger = LoggerFactory.getLogger(GatewayRest.class);
+	
 	private MerchandisingClient merchandisingClient;
 	private CommentClient commentClient;
 	private InventoryClient inventoryClient;
@@ -42,10 +46,13 @@ public class GatewayRest {
 						Product p = new Product();
 						p.setSummary(summary);
 						return p;
-					})
-					.flatMapObservable(this::loadComments)						
+					})					
+					.flatMap(this::loadRating)
+					.doOnSuccess(i -> logger.info("load rating..."))
+					.flatMap(this::loadComments)
+					.doOnSuccess(i -> logger.info("load comments..."))
 					.flatMap(this::loadInventorys)
-					.toSingle();				
+					.doOnSuccess(i -> logger.info("load inventorys..."));					
 	}
 	
 	/*@RequestMapping("/api/product/brand/{brand}")
@@ -66,28 +73,42 @@ public class GatewayRest {
 					.toSingle();
 	}*/
 	
-	public Observable<Product> loadComments(Product product){
+	public Single<Product> loadComments(Product product){
 		
-		Single<List<Comment>> comments = this.commentClient.findByItemId(product.getSummary().getId());
-		return Observable.zip(Observable.just(product), comments.toObservable(), (p, c) -> {
+		Single<List<Comment>> comments = this.commentClient.findByItemId(product.getSummary().getId()).subscribeOn(Schedulers.io());
+		Single<Product> pro = Single.just(product).subscribeOn(Schedulers.io());
+		return Single.zip(pro, comments, (p, c) -> {
 			
 			p.setComments(c);
 			return p;
 		});		
 	}
 	
-	public Observable<Product> loadInventorys(Product product){
-		Observable<List<Inventory>> inventorys = Observable.from(product.getSummary().getVariants())
-											.map(v -> v.getId())											
-											.flatMap(sku -> {												
+	public Single<Product> loadInventorys(Product product){
+		Single<Product> pro = Single.defer(() -> Single.just(product)).subscribeOn(Schedulers.io());
+		Single<List<Inventory>> inventorys = Observable.from(product.getSummary().getVariants())
+											.map(v -> v.getId())																				
+											.flatMap(sku -> {																								
 												return this.inventoryClient.findOnlyCurrentStockBySku(sku).toObservable();												
 											})
-											.toList();
+											.toList()
+											.subscribeOn(Schedulers.io())
+											.toSingle();		
 				
-		return Observable.zip(Observable.just(product), inventorys, (p, i) -> {
+		return Single.zip(pro, inventorys, (p, i) -> {
 			
 			p.setInventorys(i);
 			return p;
 		});																															
 	}	
+	
+	public Single<Product> loadRating(Product product){
+		Single<Product> pro = Single.defer(() -> Single.just(product)).subscribeOn(Schedulers.io());
+		Single<Double> rating = Single.defer(() -> this.commentClient.findRatingByItemId(product.getSummary().getId()).subscribeOn(Schedulers.io()));
+		
+		return Single.zip(pro, rating, (p, r) -> {
+			p.setRating(r);
+			return p;
+		});
+	}
 }

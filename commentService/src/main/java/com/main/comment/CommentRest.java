@@ -1,6 +1,8 @@
 package com.main.comment;
 
+import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,5 +27,14 @@ public class CommentRest {
 					.findByItemId(itemId)
 					.toList()
 					.toSingle();					
+	}
+	
+	@GetMapping("/rating/{itemId}")
+	public Single<Double> findRatingByItemId(@PathVariable String itemId){
+		return this.commentService.findRatingByItemId(itemId);
+	}
+	
+	public static void main(String args[]){
+		System.out.println(DecimalFormat.getNumberInstance(Locale.UK).format(3.2222));
 	}
 }

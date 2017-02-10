@@ -1,15 +1,17 @@
 package com.main.comment;
 
-import org.springframework.data.repository.reactive.RxJava1SortingRepository;
+import java.util.List;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import com.main.comment.domain.Comment;
 
-import rx.Observable;
-
-public interface ReactiveCommentRepository extends RxJava1SortingRepository<Comment, String>{
+public interface ReactiveCommentRepository extends MongoRepository<Comment, String>{
 	
-	Observable<Comment> findByItemId(String itemId);
+	List<Comment> findByItemId(String itemId);
 	
-	
+	@Query(value = "{'itemId' : ?0}", fields = "{'rating' : 1}")
+	List<Comment> findRatingByItemId(String itemId);
 
 }

@@ -17,7 +17,7 @@ public interface CommentService {
 	
 	Single<Comment> saveComment(Comment comment);
 	
-	Observable<Comment> findByItemId(String itemId);
+	Observable<Comment> findByItemId(String itemId, int start, int pageSize);
 	
 	Single<Double> findRatingByItemId(String itemId);
 }
@@ -46,24 +46,28 @@ class CommentServiceImpl implements CommentService{
 	}
 	
 	@Override
-	public Observable<Comment> findByItemId(String itemId) {
-		return Observable.from(this.commentRepository.findByItemId(itemId))
-					.take(10)
-					.subscribeOn(Schedulers.computation())					
-					.doOnNext(i -> logger.info("comment : "+ i.toString()));
+	public Observable<Comment> findByItemId(String itemId, int start, int pageSize) {
+		
+		return Observable.defer(() -> Observable.from(this.commentRepository.findByItemId(itemId)))
+					.skip(start)
+					.take(pageSize)
+					.subscribeOn(Schedulers.computation())										
+					.doOnCompleted(() -> logger.info("finding comments by item id start from " + start + " page size "+ pageSize))
+					.doOnError(i -> logger.error(i.getMessage()));
 	}
 	
 	@Override
 	public Single<Double> findRatingByItemId(String itemId){
 					
-		return Observable.from(this.commentRepository.findRatingByItemId(itemId))					
+		return Observable.defer(() -> Observable.from(this.commentRepository.findRatingByItemId(itemId)))					
 					.map(comment -> comment.getRating())
 					.toList()
 					.map(list -> {
 						DecimalFormat df = new DecimalFormat("#.##");
 						Double result = list.stream().mapToInt(i -> i).average().getAsDouble();
 						return Double.valueOf(df.format(result));
-					})			
+					})		
+					.doOnCompleted(() -> logger.info("calculate the rating by item id : "+ itemId))
 					.onErrorResumeNext(Observable.just(0.0))
 					.toSingle();										
 	}

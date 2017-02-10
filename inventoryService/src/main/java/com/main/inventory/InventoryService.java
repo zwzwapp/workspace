@@ -5,11 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import com.main.inventory.domain.Inventory;
+
 import rx.Single;
 
 public interface InventoryService {
 
-	public Single<Integer> findOnlyCurrentStockBySku(String sku);
+	public Single<Inventory> findOnlyCurrentStockBySku(String sku);
+	
+	public Single<Inventory> findBySku(String sku);
 }
 
 @Service
@@ -29,13 +33,22 @@ class InventoryServiceImpl implements InventoryService{
 	}
 
 	@Override
-	public Single<Integer> findOnlyCurrentStockBySku(String sku) {
+	public Single<Inventory> findOnlyCurrentStockBySku(String sku) {
 		
-		return Single.just(this.inventoryRepository.findCurrentStockBySku(sku))
-					.map(i -> i.getCurrentStock())
+		return Single.just(this.inventoryRepository.findCurrentStockBySku(sku))					
 					.onErrorResumeNext(i -> {
 						logger.error("error : "+ i.getMessage());
-						return Single.just(0);
+						return Single.just(new Inventory());
 					});
+	}
+
+	@Override
+	public Single<Inventory> findBySku(String sku) {
+		return Single.just(this.inventoryRepository.findBySku(sku))
+						.doOnSuccess(i -> logger.info("find by sku : "+ sku))
+						.onErrorResumeNext(i -> {
+							logger.error("error : "+ i.getMessage());
+							return Single.just(new Inventory());
+						});
 	}
 }

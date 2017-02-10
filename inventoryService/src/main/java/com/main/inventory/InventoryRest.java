@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.main.inventory.domain.Inventory;
+
 import rx.Single;
 
 @RestController
@@ -21,7 +23,12 @@ public class InventoryRest {
 	}
 	
 	@GetMapping("/current-stock/{sku}")
-	public Single<Integer> findCurrentStockBySku(@PathVariable String sku){
+	public Single<Inventory> findCurrentStockBySku(@PathVariable String sku){
 		return this.inventoryService.findOnlyCurrentStockBySku(sku);
+	}
+	
+	@GetMapping("/sku/{sku}")
+	public Single<Inventory> findBySku(@PathVariable String sku){
+		return this.inventoryService.findBySku(sku);
 	}
 }

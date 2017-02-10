@@ -10,4 +10,5 @@ public interface ReactiveInventoryRepository extends MongoRepository<Inventory, 
 	@Query(value = "{'sku' : ?0}", fields = "{'currentStock' : 1}")
 	Inventory findCurrentStockBySku(String sku);
 
+	Inventory findBySku(String sku);
 }

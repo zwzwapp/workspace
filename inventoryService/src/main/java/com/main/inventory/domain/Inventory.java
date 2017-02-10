@@ -8,6 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
 @Document(collection = "inventory")
 public class Inventory {
 	
@@ -18,9 +22,9 @@ public class Inventory {
 	
 	private String name;
 	
-	private int currentStock;
+	private Integer currentStock;
 	
-	private int lowStock;
+	private Integer lowStock;
 	
 	private boolean alertNotifyLowStock;
 	
@@ -53,19 +57,19 @@ public class Inventory {
 		this.name = name;
 	}
 
-	public int getCurrentStock() {
+	public Integer getCurrentStock() {
 		return currentStock;
 	}
 
-	public void setCurrentStock(int currentStock) {
+	public void setCurrentStock(Integer currentStock) {
 		this.currentStock = currentStock;
 	}
 
-	public int getLowStock() {
+	public Integer getLowStock() {
 		return lowStock;
 	}
 
-	public void setLowStock(int lowStock) {
+	public void setLowStock(Integer lowStock) {
 		this.lowStock = lowStock;
 	}
 

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.main.gateway.domain.Comment;
+import com.main.gateway.domain.Inventory;
 import com.main.gateway.domain.Product;
 
 import rx.Observable;
@@ -17,11 +18,14 @@ public class GatewayRest {
 
 	private MerchandisingClient merchandisingClient;
 	private CommentClient commentClient;
+	private InventoryClient inventoryClient;
 	
 	public GatewayRest(MerchandisingClient merchandisingClient,
-						CommentClient commentClient){
+						CommentClient commentClient,
+						InventoryClient inventoryClient){
 		this.merchandisingClient = merchandisingClient;
 		this.commentClient = commentClient;
+		this.inventoryClient = inventoryClient;
 	}
 	
 	@RequestMapping("/api/product")
@@ -29,32 +33,27 @@ public class GatewayRest {
 		return this.merchandisingClient.hello();
 	}
 		
+	
 	@RequestMapping("/api/product/id/{id}")	
 	public Single<Product> findProductById(@PathVariable String id){
-		Single<Product> product =  this.merchandisingClient.findById(id)
+				
+		return this.merchandisingClient.findById(id)
 					.map(summary -> {
 						Product p = new Product();
-						p.setId(summary.getId());
-						p.setTitle(summary.getTitle());
-						p.setBrand(summary.getBrand());
-						p.setPrices(summary.getPrices());				
+						p.setSummary(summary);
 						return p;
-					});
-		
-		Single<List<Comment>> comments = this.commentClient.findByItemId(id);
-		
-		return Single.zip(product, comments, (p, c) -> {
-			p.setComments(c);
-			return p;
-		});			
+					})
+					.flatMapObservable(this::loadComments)						
+					.flatMap(this::loadInventorys)
+					.toSingle();				
 	}
 	
-	@RequestMapping("/api/product/brand/{brand}")
+	/*@RequestMapping("/api/product/brand/{brand}")
 	public Single<List<Product>> findProductByBrand(@PathVariable String brand){
 		return this.merchandisingClient.findByBrand(brand)
-					.toObservable()
-					.flatMap( s -> Observable.from(s))
+					.flatMapObservable(s -> Observable.from(s))					
 					.map(summary -> {						
+						
 						Product product = new Product();
 						product.setId(summary.getId());
 						product.setTitle(summary.getTitle());
@@ -62,7 +61,33 @@ public class GatewayRest {
 						product.setPrices(summary.getPrices());				
 						return product;
 					})
+					.flatMap(this::loadComments)
 					.toList()
 					.toSingle();
+	}*/
+	
+	public Observable<Product> loadComments(Product product){
+		
+		Single<List<Comment>> comments = this.commentClient.findByItemId(product.getSummary().getId());
+		return Observable.zip(Observable.just(product), comments.toObservable(), (p, c) -> {
+			
+			p.setComments(c);
+			return p;
+		});		
 	}
+	
+	public Observable<Product> loadInventorys(Product product){
+		Observable<List<Inventory>> inventorys = Observable.from(product.getSummary().getVariants())
+											.map(v -> v.getId())											
+											.flatMap(sku -> {												
+												return this.inventoryClient.findOnlyCurrentStockBySku(sku).toObservable();												
+											})
+											.toList();
+				
+		return Observable.zip(Observable.just(product), inventorys, (p, i) -> {
+			
+			p.setInventorys(i);
+			return p;
+		});																															
+	}	
 }

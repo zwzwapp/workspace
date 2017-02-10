@@ -2,60 +2,26 @@ package com.main.gateway.domain;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
 public class Product {
 	
-	private String id;
-	
-	private String title;
-	
-	private String brand;
-	
-	private List<Price> prices;
+	private Summary summary;
 	
 	private List<Comment> comments;
-	
+			
 	private int rating;
-	
-	public Product getProductFromSummary(Summary summary){
 		
-		Product product = new Product();
-		product.setId(summary.getId());
-		product.setTitle(summary.getTitle());
-		product.setBrand(summary.getBrand());
-		product.setPrices(summary.getPrices());				
-		return product;
-	}
-		
-	public String getId() {
-		return id;
+	private List<Inventory> inventorys;
+
+	public Summary getSummary() {
+		return summary;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getBrand() {
-		return brand;
-	}
-
-	public void setBrand(String brand) {
-		this.brand = brand;
-	}
-
-	public List<Price> getPrices() {
-		return prices;
-	}
-
-	public void setPrices(List<Price> prices) {
-		this.prices = prices;
+	public void setSummary(Summary summary) {
+		this.summary = summary;
 	}
 
 	public List<Comment> getComments() {
@@ -73,6 +39,14 @@ public class Product {
 	public void setRating(int rating) {
 		this.rating = rating;
 	}
-	
+
+	public List<Inventory> getInventorys() {
+		return inventorys;
+	}
+
+	public void setInventorys(List<Inventory> inventorys) {
+		this.inventorys = inventorys;
+	}
+
 	
 }

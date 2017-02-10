@@ -2,6 +2,10 @@ package com.main.gateway.domain;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
 public class Summary {
 	
 	private String id;
@@ -11,6 +15,8 @@ public class Summary {
 	private String brand;
 	
 	private List<Price> prices;
+	
+	private List<Variant> variants;
 
 	public String getId() {
 		return id;
@@ -42,6 +48,14 @@ public class Summary {
 
 	public void setPrices(List<Price> prices) {
 		this.prices = prices;
+	}
+
+	public List<Variant> getVariants() {
+		return variants;
+	}
+
+	public void setVariants(List<Variant> variants) {
+		this.variants = variants;
 	}
 		
 }

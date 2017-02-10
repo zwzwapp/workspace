@@ -14,4 +14,7 @@ zuul:
     comment:
       path: /comment/**      
       serviceId: comment-service
+    inventory:
+      path: /inventory/**
+      serviceId: inventory-service      
           

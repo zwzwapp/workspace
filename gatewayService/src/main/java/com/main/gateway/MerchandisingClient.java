@@ -1,8 +1,10 @@
 package com.main.gateway;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -11,7 +13,7 @@ import com.main.gateway.domain.Summary;
 
 import rx.Single;
 
-@FeignClient(name = "merchandising-service")
+@FeignClient(name = "merchandising-service", fallback = MerchandisingClientFallback.class)
 public interface MerchandisingClient {
 
 	@RequestMapping("/hello")
@@ -22,4 +24,25 @@ public interface MerchandisingClient {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/brand/{brand}", consumes = "application/json")
 	public Single<List<Summary>> findByBrand(@PathVariable("brand") String brand);
+}
+
+@Component
+class MerchandisingClientFallback implements MerchandisingClient{
+
+	@Override
+	public Single<String> hello() {
+		return Single.just("hello merchandising service not working");
+	}
+
+	@Override
+	public Single<Summary> findById(String id) {		
+		return Single.just(new Summary());
+	}
+
+	@Override
+	public Single<List<Summary>> findByBrand(String brand) {
+		List<Summary> summarys = new ArrayList<>();
+		return Single.just(summarys);
+	}
+	
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.main.gateway.domain.Comment;
 import com.main.gateway.domain.Inventory;
 import com.main.gateway.domain.Product;
+import com.main.gateway.domain.Summary;
 
 import rx.Observable;
 import rx.Single;
@@ -41,74 +42,57 @@ public class GatewayRest {
 	@RequestMapping("/api/product/id/{id}")	
 	public Single<Product> findProductById(@PathVariable String id){
 				
-		return this.merchandisingClient.findById(id)
-					.map(summary -> {
-						Product p = new Product();
-						p.setSummary(summary);
-						return p;
-					})					
-					.flatMap(this::loadRating)
-					.doOnSuccess(i -> logger.info("load rating..."))
-					.flatMap(this::loadComments)
-					.doOnSuccess(i -> logger.info("load comments..."))
-					.flatMap(this::loadInventorys)
-					.doOnSuccess(i -> logger.info("load inventorys..."));					
+		Single<Summary> summary = this.merchandisingClient.findById(id).subscribeOn(Schedulers.io());
+		Single<List<Comment>> comment = this.commentClient.findByItemId(id).subscribeOn(Schedulers.io());
+		Single<Double> rating = this.commentClient.findRatingByItemId(id).subscribeOn(Schedulers.io());
+																			
+		return Single.zip(summary, comment, rating,  (s, c, r) -> {
+			Product product = new Product();
+			product.setSummary(s);
+			product.setComments(c);
+			product.setRating(r);		
+			return product;
+		})
+		.flatMap(this::loadInventorys)	
+		.doOnSuccess(i -> logger.info("find product by id : "+ id))
+		.doOnError(e -> logger.info("error : "+ e.getMessage()))		
+		.onErrorResumeNext(i -> Single.just(new Product()));						
 	}
 	
-	/*@RequestMapping("/api/product/brand/{brand}")
+	@RequestMapping("/api/product/brand/{brand}")
 	public Single<List<Product>> findProductByBrand(@PathVariable String brand){
-		return this.merchandisingClient.findByBrand(brand)
-					.flatMapObservable(s -> Observable.from(s))					
-					.map(summary -> {						
 						
+		return this.merchandisingClient.findByBrand(brand)
+					.flatMapObservable(s -> Observable.from(s))
+					.map(s -> {
 						Product product = new Product();
-						product.setId(summary.getId());
-						product.setTitle(summary.getTitle());
-						product.setBrand(summary.getBrand());
-						product.setPrices(summary.getPrices());				
+						product.setSummary(s);
 						return product;
 					})
-					.flatMap(this::loadComments)
+					.flatMap(p -> {						
+						Single<Double> rating = this.commentClient.findRatingByItemId(p.getSummary().getId());							
+						return rating.zipWith(Single.just(p), (r, pr) -> {
+							pr.setRating(r);
+							return pr;
+						})
+						.toObservable();						
+					})
 					.toList()
-					.toSingle();
-	}*/
-	
-	public Single<Product> loadComments(Product product){
-		
-		Single<List<Comment>> comments = this.commentClient.findByItemId(product.getSummary().getId()).subscribeOn(Schedulers.io());
-		Single<Product> pro = Single.just(product).subscribeOn(Schedulers.io());
-		return Single.zip(pro, comments, (p, c) -> {
-			
-			p.setComments(c);
-			return p;
-		});		
+					.toSingle();		
 	}
-	
+		
 	public Single<Product> loadInventorys(Product product){
 		Single<Product> pro = Single.defer(() -> Single.just(product)).subscribeOn(Schedulers.io());
 		Single<List<Inventory>> inventorys = Observable.from(product.getSummary().getVariants())
 											.map(v -> v.getId())																				
-											.flatMap(sku -> {																								
-												return this.inventoryClient.findOnlyCurrentStockBySku(sku).toObservable();												
-											})
+											.flatMap(sku ->  this.inventoryClient.findOnlyCurrentStockBySku(sku).toObservable())
 											.toList()
 											.subscribeOn(Schedulers.io())
 											.toSingle();		
 				
-		return Single.zip(pro, inventorys, (p, i) -> {
-			
+		return Single.zip(pro, inventorys, (p, i) -> {			
 			p.setInventorys(i);
 			return p;
 		});																															
 	}	
-	
-	public Single<Product> loadRating(Product product){
-		Single<Product> pro = Single.defer(() -> Single.just(product)).subscribeOn(Schedulers.io());
-		Single<Double> rating = Single.defer(() -> this.commentClient.findRatingByItemId(product.getSummary().getId()).subscribeOn(Schedulers.io()));
-		
-		return Single.zip(pro, rating, (p, r) -> {
-			p.setRating(r);
-			return p;
-		});
-	}
 }

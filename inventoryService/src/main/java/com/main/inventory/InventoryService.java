@@ -35,7 +35,8 @@ class InventoryServiceImpl implements InventoryService{
 	@Override
 	public Single<Inventory> findOnlyCurrentStockBySku(String sku) {
 		
-		return Single.just(this.inventoryRepository.findCurrentStockBySku(sku))					
+		return Single.just(this.inventoryRepository.findCurrentStockBySku(sku))		
+					.doOnSuccess(i -> logger.info("find only urrent stock by sku : "+ sku))
 					.onErrorResumeNext(i -> {
 						logger.error("error : "+ i.getMessage());
 						return Single.just(new Inventory());

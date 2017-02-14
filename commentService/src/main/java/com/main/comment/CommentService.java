@@ -2,6 +2,7 @@ package com.main.comment;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,12 @@ public interface CommentService {
 	Observable<Comment> findByItemId(String itemId, int start, int pageSize);
 	
 	Single<Double> findRatingByItemId(String itemId);
+	
+	Observable<Comment> findByUsername(String username, int start, int pageSize);
+	
+	Observable<Comment> findByUserEmail(String userEmail, int start, int pageSize);
+	
+	Observable<Comment> findByIpAddress(String ipAddress, int start, int pageSize);
 }
 
 @Service
@@ -53,7 +60,8 @@ class CommentServiceImpl implements CommentService{
 					.take(pageSize)
 					.subscribeOn(Schedulers.computation())										
 					.doOnCompleted(() -> logger.info("finding comments by item id start from " + start + " page size "+ pageSize))
-					.doOnError(i -> logger.error(i.getMessage()));
+					.doOnError(i -> logger.error(i.getMessage()))
+					.onErrorResumeNext(Observable.from(new ArrayList<Comment>()));	
 	}
 	
 	@Override
@@ -70,6 +78,39 @@ class CommentServiceImpl implements CommentService{
 					.doOnCompleted(() -> logger.info("calculate the rating by item id : "+ itemId))
 					.onErrorResumeNext(Observable.just(0.0))
 					.toSingle();										
+	}
+
+	@Override
+	public Observable<Comment> findByUsername(String username, int start, int pageSize) {
+		return Observable.defer(() -> Observable.from(this.commentRepository.findByUsername(username)))
+						.skip(start)
+						.take(pageSize)
+						.subscribeOn(Schedulers.io())
+						.doOnCompleted(() -> logger.info("finding comments by given user name : "+ username))
+						.doOnError(i -> logger.error(i.getMessage()))
+						.onErrorResumeNext(Observable.from(new ArrayList<Comment>()));		
+	}
+
+	@Override
+	public Observable<Comment> findByUserEmail(String userEmail, int start, int pageSize) {
+		return Observable.defer(() -> Observable.from(this.commentRepository.findByUserEmail(userEmail)))
+				.skip(start)
+				.take(pageSize)
+				.subscribeOn(Schedulers.io())
+				.doOnCompleted(() -> logger.info("finding comments by given user email : "+ userEmail))
+				.doOnError(i -> logger.error(i.getMessage()))
+				.onErrorResumeNext(Observable.from(new ArrayList<Comment>()));		
+	}
+
+	@Override
+	public Observable<Comment> findByIpAddress(String ipAddress, int start, int pageSize) {
+		return Observable.defer(() -> Observable.from(this.commentRepository.findByIpAddress(ipAddress)))
+				.skip(start)
+				.take(pageSize)
+				.subscribeOn(Schedulers.io())
+				.doOnCompleted(() -> logger.info("finding comments by given ip address : "+ ipAddress))
+				.doOnError(i -> logger.error(i.getMessage()))
+				.onErrorResumeNext(Observable.from(new ArrayList<Comment>()));
 	}
 	
 }

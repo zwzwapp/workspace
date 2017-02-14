@@ -14,4 +14,9 @@ public interface ReactiveCommentRepository extends MongoRepository<Comment, Stri
 	@Query(value = "{'itemId' : ?0}", fields = "{'rating' : 1}")
 	List<Comment> findRatingByItemId(String itemId);
 
+	List<Comment> findByUsername(String username);
+	
+	List<Comment> findByUserEmail(String userEmail);
+	
+	List<Comment> findByIpAddress(String ipAddress);
 }

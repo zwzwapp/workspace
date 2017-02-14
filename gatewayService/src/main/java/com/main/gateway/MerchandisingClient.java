@@ -24,6 +24,9 @@ public interface MerchandisingClient {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/brand/{brand}", consumes = "application/json")
 	public Single<List<Summary>> findByBrand(@PathVariable("brand") String brand);
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/category/{category}", consumes = "application/json")
+	public Single<List<Summary>> findByCategoryRegex(@PathVariable("category") String category);
 }
 
 @Component
@@ -40,9 +43,13 @@ class MerchandisingClientFallback implements MerchandisingClient{
 	}
 
 	@Override
-	public Single<List<Summary>> findByBrand(String brand) {
-		List<Summary> summarys = new ArrayList<>();
-		return Single.just(summarys);
+	public Single<List<Summary>> findByBrand(String brand) {		
+		return Single.just(new ArrayList<Summary>());
+	}
+
+	@Override
+	public Single<List<Summary>> findByCategoryRegex(String category) {
+		return Single.just(new ArrayList<Summary>());
 	}
 	
 }

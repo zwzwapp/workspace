@@ -21,7 +21,7 @@ public class Inventory {
 	
 	private Integer lowStock;
 	
-	private boolean alertNotifyLowStock;
+	private Boolean alertNotifyLowStock;
 	
 	@DateTimeFormat(iso = ISO.DATE_TIME)
 	public LocalDateTime lastUpdate;
@@ -68,11 +68,11 @@ public class Inventory {
 		this.lowStock = lowStock;
 	}
 
-	public boolean isAlertNotifyLowStock() {
+	public Boolean isAlertNotifyLowStock() {
 		return alertNotifyLowStock;
 	}
 
-	public void setAlertNotifyLowStock(boolean alertNotifyLowStock) {
+	public void setAlertNotifyLowStock(Boolean alertNotifyLowStock) {
 		this.alertNotifyLowStock = alertNotifyLowStock;
 	}
 

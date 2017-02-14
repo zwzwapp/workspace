@@ -1,20 +1,20 @@
 package com.main.gateway.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import java.util.List;
 
-@JsonInclude(Include.NON_NULL)
 public class Variant {
 	
 	private String id;
 	
 	private String name;
 	
-	private String color;
-	
-	private String size;
-		
 	private String itemId;
+	
+	private List<Property> propertys;
+	
+	private String mainImageUrl;
+	
+	private String[] imageUrls;
 
 	public String getId() {
 		return id;
@@ -32,27 +32,35 @@ public class Variant {
 		this.name = name;
 	}
 
-	public String getColor() {
-		return color;
-	}
-
-	public void setColor(String color) {
-		this.color = color;
-	}
-
-	public String getSize() {
-		return size;
-	}
-
-	public void setSize(String size) {
-		this.size = size;
-	}
-
 	public String getItemId() {
 		return itemId;
 	}
 
 	public void setItemId(String itemId) {
 		this.itemId = itemId;
+	}
+
+	public List<Property> getPropertys() {
+		return propertys;
+	}
+
+	public void setPropertys(List<Property> propertys) {
+		this.propertys = propertys;
+	}
+
+	public String getMainImageUrl() {
+		return mainImageUrl;
+	}
+
+	public void setMainImageUrl(String mainImageUrl) {
+		this.mainImageUrl = mainImageUrl;
+	}
+
+	public String[] getImageUrls() {
+		return imageUrls;
+	}
+
+	public void setImageUrls(String[] imageUrls) {
+		this.imageUrls = imageUrls;
 	}			
 }

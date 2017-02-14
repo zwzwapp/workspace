@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.main.gateway.domain.Comment;
@@ -60,7 +61,9 @@ public class GatewayRest {
 	}
 	
 	@RequestMapping("/api/product/brand/{brand}")
-	public Single<List<Product>> findProductByBrand(@PathVariable String brand){
+	public Single<List<Product>> findProductByBrand(@PathVariable String brand,
+														@RequestParam(defaultValue="0") int start, 
+														@RequestParam(defaultValue="25") int pageSize){
 						
 		return this.merchandisingClient.findByBrand(brand)
 					.flatMapObservable(s -> Observable.from(s))
@@ -69,22 +72,43 @@ public class GatewayRest {
 						product.setSummary(s);
 						return product;
 					})
-					.flatMap(p -> {						
-						Single<Double> rating = this.commentClient.findRatingByItemId(p.getSummary().getId());							
-						return rating.zipWith(Single.just(p), (r, pr) -> {
-							pr.setRating(r);
-							return pr;
-						})
-						.toObservable();						
-					})
+					.flatMap(this::loadRating)
 					.toList()
+					.subscribeOn(Schedulers.io())
+					.doOnCompleted(() -> logger.info("find product by brand : "+ brand))
 					.toSingle();		
 	}
-		
+	
+	@RequestMapping("/api/product/category/{category}")
+	public Single<List<Product>> findProductByCategory(@PathVariable String category,
+														@RequestParam(defaultValue = "0") int start, 
+														@RequestParam(defaultValue = "25") int pageSize){
+		return this.merchandisingClient.findByCategoryRegex(category)				
+				.flatMapObservable(s -> Observable.from(s))				
+				.map(s -> {
+					Product product = new Product();
+					product.setSummary(s);
+					return product;
+				})										
+				.flatMap(this::loadRating)				
+				.toList()
+				.subscribeOn(Schedulers.io())
+				.doOnCompleted(() -> logger.info("find product by category : "+ category))
+				.toSingle();	
+	}
+	
+	public Observable<Product> loadRating(Product product){
+		Single<Double> rating = this.commentClient.findRatingByItemId(product.getSummary().getId());							
+		return rating.zipWith(Single.just(product), (r, pr) -> {
+			pr.setRating(r);
+			return pr;
+		})
+		.toObservable();
+	}
+			
 	public Single<Product> loadInventorys(Product product){
 		Single<Product> pro = Single.defer(() -> Single.just(product)).subscribeOn(Schedulers.io());
-		Single<List<Inventory>> inventorys = Observable.from(product.getSummary().getVariants())
-											.map(v -> v.getId())																				
+		Single<List<Inventory>> inventorys = Observable.from(product.getSummary().getSkus())																														
 											.flatMap(sku ->  this.inventoryClient.findOnlyCurrentStockBySku(sku).toObservable())
 											.toList()
 											.subscribeOn(Schedulers.io())

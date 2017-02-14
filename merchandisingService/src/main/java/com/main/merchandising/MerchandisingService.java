@@ -29,7 +29,9 @@ public interface MerchandisingService {
 	
 	public Single<Summary> findById(String id);
 	
-	public Observable<Summary> findByBrand(String brand);
+	public Observable<Summary> findByBrand(String brand, int start, int pageSize);
+	
+	public Observable<Summary> findByCategoryRegex(String category, int start, int pageSize);
 }
 
 @Service
@@ -39,13 +41,16 @@ class MerchandisingServiceImpl implements MerchandisingService{
 	private MongoTemplate mongoTemplate;
 	private ReactiveItemRepository itemRepository;
 	private ReactivePriceRepository priceRepository;
+	private ReactiveVariantRepository variantRepository;
 	
 	public MerchandisingServiceImpl(MongoTemplate mongoTemplate,
 										ReactiveItemRepository itemRepository,
-										ReactivePriceRepository priceRepository){
+										ReactivePriceRepository priceRepository,
+										ReactiveVariantRepository variantRepository){
 		this.mongoTemplate = mongoTemplate;
 		this.itemRepository = itemRepository;
 		this.priceRepository = priceRepository;
+		this.variantRepository = variantRepository;		
 	}
 	
 	@Override
@@ -74,17 +79,37 @@ class MerchandisingServiceImpl implements MerchandisingService{
 	}
 
 	@Override
-	public Observable<Summary> findByBrand(String brand) {
+	public Observable<Summary> findByBrand(String brand, int start, int pageSize) {
 		Aggregation agg = newAggregation(
 				match(Criteria.where("brand").is(brand)),
 				lookup("price", "_id", "itemId", "prices"),
 				lookup("variant", "_id", "itemId", "variants")
 				);
-		AggregationResults<Summary> result = this.mongoTemplate.aggregate(agg, Item.class, Summary.class);
+		AggregationResults<Summary> result = this.mongoTemplate.aggregate(agg, Item.class, Summary.class);		
 		return Observable.from(result.getMappedResults())		
+					.skip(start)
+					.take(pageSize)
 					.subscribeOn(Schedulers.newThread())
-					.doOnNext(i -> logger.info("summary : "+ i.toString()))
+					.doOnCompleted(() -> logger.info("find by brand : " + brand))
+					.doOnError(i -> logger.error("error : "+ i.getMessage()))
 					.onErrorResumeNext(i -> Observable.from(new ArrayList<Summary>()));					
+	}
+
+	@Override
+	public Observable<Summary> findByCategoryRegex(String category, int start, int pageSize) {
+		Aggregation agg = newAggregation(
+				match(Criteria.where("category").regex(category)),
+				lookup("price", "_id", "itemId", "prices"),
+				lookup("variant", "_id", "itemId", "variants")
+				);
+		AggregationResults<Summary> result = this.mongoTemplate.aggregate(agg, Item.class, Summary.class);
+		return Observable.from(result.getMappedResults())
+							.skip(start)
+							.take(pageSize)
+							.subscribeOn(Schedulers.newThread())
+							.doOnCompleted(() -> logger.info("find by category regex : " + category))
+							.doOnError(i -> logger.error("error : "+ i.getMessage()))
+							.onErrorResumeNext(i -> Observable.from(new ArrayList<Summary>()));
 	}
 
 	

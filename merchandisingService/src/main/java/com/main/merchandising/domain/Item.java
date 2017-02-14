@@ -1,5 +1,7 @@
 package com.main.merchandising.domain;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.data.mongodb.core.index.TextIndexed;
@@ -25,6 +27,14 @@ public class Item {
 	private String description;
 	
 	private String tags;
+	
+	private String mainImageUrl;
+	
+	private String[] imageUrls;
+	
+	private List<String> skus;
+	
+	private List<Property> propertys;
 			
 	public Item(){}
 	
@@ -74,6 +84,38 @@ public class Item {
 
 	public void setTags(String tags) {
 		this.tags = tags;
+	}
+
+	public String getMainImageUrl() {
+		return mainImageUrl;
+	}
+
+	public void setMainImageUrl(String mainImageUrl) {
+		this.mainImageUrl = mainImageUrl;
+	}
+
+	public String[] getImageUrls() {
+		return imageUrls;
+	}
+
+	public void setImageUrls(String[] imageUrls) {
+		this.imageUrls = imageUrls;
+	}
+
+	public List<String> getSkus() {
+		return skus;
+	}
+
+	public void setSkus(List<String> skus) {
+		this.skus = skus;
+	}
+
+	public List<Property> getPropertys() {
+		return propertys;
+	}
+
+	public void setPropertys(List<Property> propertys) {
+		this.propertys = propertys;
 	}
 
 }

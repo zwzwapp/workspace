@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.main.merchandising.domain.Summary;
@@ -35,11 +36,24 @@ public class MerchandisingRest {
 	}
 	
 	@GetMapping("/brand/{brand}")
-	public Single<List<Summary>> findByBrand(@PathVariable String brand){
-		return this.merchandisingService.findByBrand(brand)
+	public Single<List<Summary>> findByBrand(@PathVariable String brand,
+												@RequestParam(defaultValue = "0") int start,
+												@RequestParam(defaultValue = "25") int pageSize){
+		return this.merchandisingService.findByBrand(brand, start, pageSize)
 					.doOnCompleted(() -> logger.info("find by brand : "+ brand))
 					.cache()
 					.toList()
 					.toSingle();										
+	}
+	
+	@GetMapping("/category/{category}")
+	public Single<List<Summary>> findByCategoryRegex(@PathVariable String category,
+														@RequestParam(defaultValue = "0") int start,
+														@RequestParam(defaultValue = "25") int pageSize){
+		return this.merchandisingService.findByCategoryRegex(category, start, pageSize)
+					.doOnCompleted(() -> logger.info("find by category regex : "+ category))
+					.cache()
+					.toList()
+					.toSingle();
 	}
 }

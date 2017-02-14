@@ -1,5 +1,7 @@
 package com.main.merchandising.domain;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,12 +12,14 @@ public class Variant {
 	
 	private String name;
 	
-	private String color;
-	
-	private String size;
-	
 	@Indexed
 	private String itemId;
+	
+	private List<Property> propertys;
+	
+	private String mainImageUrl;
+	
+	private String[] imageUrls;
 
 	public String getId() {
 		return id;
@@ -33,27 +37,35 @@ public class Variant {
 		this.name = name;
 	}
 
-	public String getColor() {
-		return color;
-	}
-
-	public void setColor(String color) {
-		this.color = color;
-	}
-
-	public String getSize() {
-		return size;
-	}
-
-	public void setSize(String size) {
-		this.size = size;
-	}
-
 	public String getItemId() {
 		return itemId;
 	}
 
 	public void setItemId(String itemId) {
 		this.itemId = itemId;
+	}
+
+	public List<Property> getPropertys() {
+		return propertys;
+	}
+
+	public void setPropertys(List<Property> propertys) {
+		this.propertys = propertys;
+	}
+
+	public String getMainImageUrl() {
+		return mainImageUrl;
+	}
+
+	public void setMainImageUrl(String mainImageUrl) {
+		this.mainImageUrl = mainImageUrl;
+	}
+
+	public String[] getImageUrls() {
+		return imageUrls;
+	}
+
+	public void setImageUrls(String[] imageUrls) {
+		this.imageUrls = imageUrls;
 	}			
 }

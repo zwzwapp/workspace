@@ -39,6 +39,7 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-ribbon')
 	compile('org.springframework.cloud:spring-cloud-starter-turbine')
 	compile('org.springframework.cloud:spring-cloud-starter-zuul')
+	compile('org.springframework.cloud:spring-cloud-starter-config')
 	
 	compile('io.reactivex.rxjava2:rxjava')	
 	

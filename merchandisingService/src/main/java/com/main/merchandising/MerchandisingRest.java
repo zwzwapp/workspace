@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.main.merchandising.domain.AggreCount;
 import com.main.merchandising.domain.Summary;
 
 import rx.Single;
@@ -53,6 +54,14 @@ public class MerchandisingRest {
 		return this.merchandisingService.findByCategoryRegex(category, start, pageSize)
 					.doOnCompleted(() -> logger.info("find by category regex : "+ category))
 					.cache()
+					.toList()
+					.toSingle();
+	}
+	
+	@GetMapping("/aggregation/brand")
+	public Single<List<AggreCount>> aggregationByBrand(){
+		return this.merchandisingService.aggregationByBrand()
+					.doOnCompleted(() -> logger.info("aggregation by brand"))
 					.toList()
 					.toSingle();
 	}

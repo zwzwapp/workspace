@@ -1,19 +1,24 @@
 package com.main.merchandising;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
+import com.main.merchandising.domain.AggreCount;
 import com.main.merchandising.domain.Item;
 import com.main.merchandising.domain.Summary;
 
@@ -32,6 +37,8 @@ public interface MerchandisingService {
 	public Observable<Summary> findByBrand(String brand, int start, int pageSize);
 	
 	public Observable<Summary> findByCategoryRegex(String category, int start, int pageSize);
+	
+	public Observable<AggreCount> aggregationByBrand();
 }
 
 @Service
@@ -110,6 +117,22 @@ class MerchandisingServiceImpl implements MerchandisingService{
 							.doOnCompleted(() -> logger.info("find by category regex : " + category))
 							.doOnError(i -> logger.error("error : "+ i.getMessage()))
 							.onErrorResumeNext(i -> Observable.from(new ArrayList<Summary>()));
+	}
+
+	@Override
+	public Observable<AggreCount> aggregationByBrand() {
+		Aggregation agg = newAggregation(
+				project("brand"),
+				group("brand").count().as("count"),
+				project("count").and("name").previousOperation(),
+				sort(Sort.Direction.DESC, "count")
+				);
+		AggregationResults<AggreCount> result = this.mongoTemplate.aggregate(agg, Item.class, AggreCount.class);
+		return Observable.from(result.getMappedResults())
+						.subscribeOn(Schedulers.io())
+						.doOnCompleted(() -> logger.info("aggregation by brand"))
+						.doOnError(e -> logger.error("error : "+ e.getMessage()))
+						.onErrorResumeNext(i -> Observable.from(new ArrayList<AggreCount>()));
 	}
 
 	

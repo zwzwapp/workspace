@@ -24,7 +24,7 @@ public class Summary {
 	
 	private String mainImageUrl;
 	
-	private String[] imageUrls;
+	private List<String> imageUrls;
 	
 	private List<String> skus;
 
@@ -108,11 +108,11 @@ public class Summary {
 		this.mainImageUrl = mainImageUrl;
 	}
 
-	public String[] getImageUrls() {
+	public List<String> getImageUrls() {
 		return imageUrls;
 	}
 
-	public void setImageUrls(String[] imageUrls) {
+	public void setImageUrls(List<String> imageUrls) {
 		this.imageUrls = imageUrls;
 	}
 

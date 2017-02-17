@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.main.gateway.domain.AggreCount;
 import com.main.gateway.domain.Summary;
 
 import rx.Single;
@@ -27,6 +28,9 @@ public interface MerchandisingClient {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/category/{category}", consumes = "application/json")
 	public Single<List<Summary>> findByCategoryRegex(@PathVariable("category") String category);
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/aggregation/brand", consumes = "application/json")
+	public Single<List<AggreCount>> aggregationByBrand();
 }
 
 @Component
@@ -50,6 +54,11 @@ class MerchandisingClientFallback implements MerchandisingClient{
 	@Override
 	public Single<List<Summary>> findByCategoryRegex(String category) {
 		return Single.just(new ArrayList<Summary>());
+	}
+
+	@Override
+	public Single<List<AggreCount>> aggregationByBrand() {
+		return Single.just(new ArrayList<AggreCount>());
 	}
 	
 }
